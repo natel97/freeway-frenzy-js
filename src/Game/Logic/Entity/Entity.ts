@@ -5,7 +5,7 @@ export default interface Entity {
   image: HTMLImageElement;
   width: number;
   height: number;
-  onDestroy: () => {};
-  onCreate: () => {};
-  step: () => {};
+  onDestroy: () => void;
+  onCreate: () => void;
+  step: (delta: number) => void;
 }

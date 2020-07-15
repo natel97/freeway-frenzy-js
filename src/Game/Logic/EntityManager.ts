@@ -1,8 +1,6 @@
 import Entity from "./Entity/Entity";
 
 export class EntityManager<T extends Entity> {
-  constructor() {}
-
   private lastId = 0;
   private entities: T[] = [];
 
@@ -26,9 +24,9 @@ export class EntityManager<T extends Entity> {
     this.entities = this.entities.filter((e) => e.id !== id);
   }
 
-  renderEntities(context: CanvasRenderingContext2D) {
+  renderEntities(context: CanvasRenderingContext2D, delta: number) {
     this.entities.forEach((entity) => {
-      entity.step();
+      entity.step(delta);
       context.drawImage(
         entity.image,
         entity.x,

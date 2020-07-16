@@ -2,8 +2,8 @@ import { RefObject } from "react";
 import { EntityManager } from "./EntityManager";
 import Destroyer from "./Entity/Destroyer";
 import Destroyable from "./Entity/Destroyable";
-import Car from "./Entity/Destroyable/Car";
 import Images from "../Assets/Images";
+import { destroyables } from "./Entity/MacroMapper";
 
 export default class MainGame {
   destroyerManager = new EntityManager<Destroyer>();
@@ -19,17 +19,30 @@ export default class MainGame {
     if (context === null || context === undefined) {
       throw new Error("Context not defined");
     }
+    setInterval(() => {
+      destroyables().forEach((obj: any) => {
+        const img = this.assets.get(obj.image);
+        if (img) {
+          const destroyable = new Destroyable(img);
+          destroyable.x =
+            obj.lanes[Math.floor(Math.random() * obj.lanes.length)];
+          destroyable.y = 8;
+          destroyable.health = obj.health;
+          destroyable.width = obj.width;
+          destroyable.height = obj.height;
+          console.log(obj);
+          this.destroyableManager.createEntity(destroyable);
+        } else {
+          console.error({
+            msg: "asset does not exist",
+            asset: obj.image,
+            object: obj,
+          });
+        }
+      });
+    }, 5000);
+
     this.context = context;
-
-    const { height } = this.getScreenSize(true);
-
-    const img = this.assets.get("car");
-    if (img) {
-      const car = new Car(img);
-      car.x = 128;
-      car.y = height;
-      this.destroyableManager.createEntity(car);
-    }
   }
 
   private render() {
@@ -37,7 +50,7 @@ export default class MainGame {
   }
 
   handleFrame(time: number) {
-    this.gameLoop(time - this.lastTime);
+    this.gameLoop(time - (this.lastTime || time));
     this.lastTime = time;
   }
 
@@ -64,7 +77,7 @@ export default class MainGame {
 
   private renderBackground() {
     this.context.fillStyle = "#FFF";
-    const { width, height } = this.getScreenSize();
+    const { width, height } = getScreenSize();
     this.context.fillRect(0, 0, window.innerWidth, window.innerHeight);
     const img = this.assets.get("background");
     if (img) {
@@ -74,37 +87,21 @@ export default class MainGame {
 
   coverBoundaries() {
     this.context.fillStyle = "#FFF";
-    const { width, height } = this.getScreenSize();
+    const { width, height } = getScreenSize();
     this.context.fillRect(width, 0, window.innerWidth, window.innerHeight);
     this.context.fillRect(0, height, window.innerWidth, window.innerHeight);
   }
 
-  public getScreenSize(maintainAspectRatio = true) {
-    const ratio = 16 / 9;
-    const heightIsRoot = window.innerWidth * 9 > window.innerHeight * 16;
-    if (maintainAspectRatio) {
-      if (heightIsRoot) {
-        return {
-          width: window.innerHeight * ratio,
-          height: window.innerHeight,
-        };
-      } else {
-        return {
-          height: window.innerWidth / ratio,
-          width: window.innerWidth,
-        };
-      }
-    } else {
-      return { width: window.innerWidth, height: window.innerWidth };
-    }
-  }
-
   private renderGrid() {
-    const { height, width } = this.getScreenSize();
-    const [xLines, yLines] = [12, 8];
-    const gridWidth = width / xLines;
-    const gridHeight = height / yLines;
     this.context.strokeStyle = "#F24";
+    const {
+      gridWidth,
+      gridHeight,
+      width,
+      height,
+      xLines,
+      yLines,
+    } = getGridSizes();
 
     for (let i = 0; i < xLines; i++) {
       this.context.beginPath();
@@ -120,4 +117,33 @@ export default class MainGame {
       this.context.stroke();
     }
   }
+}
+
+export function getScreenSize(maintainAspectRatio = true) {
+  const ratio = 16 / 9;
+  const heightIsRoot = window.innerWidth * 9 > window.innerHeight * 16;
+  if (maintainAspectRatio) {
+    if (heightIsRoot) {
+      return {
+        width: window.innerHeight * ratio,
+        height: window.innerHeight,
+      };
+    } else {
+      return {
+        height: window.innerWidth / ratio,
+        width: window.innerWidth,
+      };
+    }
+  } else {
+    return { width: window.innerWidth, height: window.innerWidth };
+  }
+}
+
+export function getGridSizes(maintainAspectRatio = true) {
+  const { height, width } = getScreenSize(maintainAspectRatio);
+  const [xLines, yLines] = [12, 8];
+  const gridWidth = width / xLines;
+  const gridHeight = height / yLines;
+
+  return { gridWidth, gridHeight, width, height, xLines, yLines };
 }

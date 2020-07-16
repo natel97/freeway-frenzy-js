@@ -1,4 +1,5 @@
 import Entity from "./Entity/Entity";
+import { getGridSizes } from ".";
 
 export class EntityManager<T extends Entity> {
   private lastId = 0;
@@ -24,16 +25,22 @@ export class EntityManager<T extends Entity> {
     this.entities = this.entities.filter((e) => e.id !== id);
   }
 
-  renderEntities(context: CanvasRenderingContext2D, delta: number) {
+  renderEntities(
+    context: CanvasRenderingContext2D,
+    delta: number,
+    collisionBox = false
+  ) {
+    const { gridWidth, gridHeight } = getGridSizes();
     this.entities.forEach((entity) => {
+      const x = entity.x * gridWidth;
+      const y = entity.y * gridWidth;
+      const width = entity.width * gridWidth;
+      const height = entity.height * gridHeight;
       entity.step(delta);
-      context.drawImage(
-        entity.image,
-        entity.x,
-        entity.y,
-        entity.width,
-        entity.height
-      );
+      if (collisionBox) {
+        context.strokeRect(x, y, width, height);
+      }
+      context.drawImage(entity.image, x, y, width, height);
     });
   }
 }

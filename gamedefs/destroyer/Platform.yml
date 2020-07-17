@@ -1,0 +1,25 @@
+name: Platform
+image: platform
+damager: Ball Thing
+damage: 10
+cost: 100
+range: 10
+upgrades:
+  - damage: 1
+    cost: 100
+    range: 1
+  - damage: 1
+    cost: 200
+    range: 1
+  - damage: 1
+    cost: 300
+    range: 1
+  - damage: 1
+    cost: 400
+    range: 1
+  - damage: 1
+    cost: 600
+    range: 1
+  - damage: 1
+    cost: 800
+    range: 1

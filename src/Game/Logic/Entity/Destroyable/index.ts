@@ -11,6 +11,7 @@ export default class Destroyable implements Entity {
     console.log(this);
   };
 
+  isTouched = false;
   id = 10;
   x = 3;
   y = 8;
@@ -25,5 +26,18 @@ export default class Destroyable implements Entity {
   };
   step = (delta: number) => {
     this.y -= delta / 1000;
+  };
+
+  drawTouch = (
+    context: CanvasRenderingContext2D,
+    gridW: number,
+    gridH: number
+  ) => {
+    context.strokeRect(
+      this.x * gridW,
+      this.y * gridH,
+      this.width * gridW,
+      this.height * gridH
+    );
   };
 }

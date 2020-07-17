@@ -3,21 +3,29 @@ import { EntityManager } from "./EntityManager";
 import Destroyer from "./Entity/Destroyer";
 import Destroyable from "./Entity/Destroyable";
 import Images from "../Assets/Images";
-import { destroyables } from "./Entity/MacroMapper";
+import { destroyables, destroyers, damagers } from "./Entity/MacroMapper";
+import TouchHandler from "./Handlers/TouchHandler";
 
 export default class MainGame {
   destroyerManager = new EntityManager<Destroyer>();
   destroyableManager = new EntityManager<Destroyable>();
   context: CanvasRenderingContext2D;
   lastTime = 0;
+  touchHandler: TouchHandler;
 
   constructor(
     private assets: Map<keyof typeof Images, HTMLImageElement>,
     private ref: RefObject<HTMLCanvasElement>
   ) {
+    console.log(damagers(), destroyers());
     const context = this.ref.current?.getContext("2d");
     if (context === null || context === undefined) {
       throw new Error("Context not defined");
+    }
+    if (ref && ref.current) {
+      this.touchHandler = new TouchHandler(ref.current);
+    } else {
+      throw new Error("No canvas");
     }
     setInterval(() => {
       destroyables().forEach((obj: any) => {
@@ -30,7 +38,6 @@ export default class MainGame {
           destroyable.health = obj.health;
           destroyable.width = obj.width;
           destroyable.height = obj.height;
-          console.log(obj);
           this.destroyableManager.createEntity(destroyable);
         } else {
           console.error({
@@ -66,11 +73,11 @@ export default class MainGame {
     }
     this.destroyableManager.renderEntities(this.context, time);
     this.destroyerManager.renderEntities(this.context, time);
-
     this.destroyableManager
       .findEntities((entity) => entity.y < -entity.height)
       .forEach((e) => this.destroyableManager.destroyEntity(e.id));
-
+    this.destroyableManager.findEntities(this.touchHandler.getIfItemTouched);
+    this.touchHandler.draw();
     this.coverBoundaries();
     this.render();
   }

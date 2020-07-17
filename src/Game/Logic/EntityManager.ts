@@ -15,7 +15,7 @@ export class EntityManager<T extends Entity> {
     return entity.id;
   }
 
-  findEntities(whereFunc: (entity: Entity) => {}): Entity[] {
+  findEntities(whereFunc: (entity: Entity) => void): Entity[] {
     return this.entities.filter(whereFunc);
   }
 
@@ -25,21 +25,14 @@ export class EntityManager<T extends Entity> {
     this.entities = this.entities.filter((e) => e.id !== id);
   }
 
-  renderEntities(
-    context: CanvasRenderingContext2D,
-    delta: number,
-    collisionBox = false
-  ) {
+  renderEntities(context: CanvasRenderingContext2D, delta: number) {
     const { gridWidth, gridHeight } = getGridSizes();
     this.entities.forEach((entity) => {
       const x = entity.x * gridWidth;
-      const y = entity.y * gridWidth;
+      const y = entity.y * gridHeight;
       const width = entity.width * gridWidth;
       const height = entity.height * gridHeight;
       entity.step(delta);
-      if (collisionBox) {
-        context.strokeRect(x, y, width, height);
-      }
       context.drawImage(entity.image, x, y, width, height);
     });
   }

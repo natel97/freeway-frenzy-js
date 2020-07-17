@@ -8,4 +8,10 @@ export default interface Entity {
   onDestroy: () => void;
   onCreate: () => void;
   step: (delta: number) => void;
+  isTouched: boolean;
+  drawTouch: (
+    context: CanvasRenderingContext2D,
+    gridW: number,
+    gridH: number
+  ) => void;
 }
